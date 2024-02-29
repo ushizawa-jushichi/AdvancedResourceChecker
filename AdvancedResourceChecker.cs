@@ -1,5 +1,5 @@
-// Advanced Resource Checker
-
+﻿// Advanced Resource Checker
+#define RESOURCECHECKER_EXPORT_FBX
 using System;
 using System.Linq;
 using System.IO;
@@ -7,7 +7,9 @@ using UnityEngine;
 using UnityEngine.UI;
 #if UNITY_EDITOR
 using UnityEditor;
+#if RESOURCECHECKER_EXPORT_FBX
 using UnityEditor.Formats.Fbx.Exporter;
+#endif
 #endif
 using System.Collections.Generic;
 using System.Reflection;
@@ -1001,11 +1003,14 @@ public class AdvancedResourceChecker : EditorWindow {
 				}
 
                 GUILayout.Label("Export as ", GUILayout.Width(60));
-
-                if (GUILayout.Button("FBX", GUILayout.Width(35)))
+#if !RESOURCECHECKER_EXPORT_FBX
+				EditorGUI.BeginDisabledGroup(true);
+#endif
+				if (GUILayout.Button("FBX", GUILayout.Width(35)))
                 {
+#if RESOURCECHECKER_EXPORT_FBX
 #if UNITY_EDITOR
-                    Mesh mesh = tDetails.mesh;
+					Mesh mesh = tDetails.mesh;
                         if (mesh != null)
                         {
                             string meshPath = AssetDatabase.GetAssetPath(mesh);
@@ -1017,9 +1022,13 @@ public class AdvancedResourceChecker : EditorWindow {
 #else
                     Debug.LogError("FBX Exporter plugin is required to export as FBX.");
 #endif
-                }
+#endif
+				}
+#if !RESOURCECHECKER_EXPORT_FBX
+				EditorGUI.EndDisabledGroup();
+#endif
 
-                if (tDetails.FoundInSkinnedMeshRenderer.Count > 0) {
+				if (tDetails.FoundInSkinnedMeshRenderer.Count > 0) {
 					if (GUILayout.Button (tDetails.FoundInSkinnedMeshRenderer.Count + " skinned mesh GO", GUILayout.Width (140))) {
 						List<Object> FoundObjects = new List<Object> ();
 						foreach (SkinnedMeshRenderer skinnedMeshRenderer in tDetails.FoundInSkinnedMeshRenderer)
